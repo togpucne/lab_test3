@@ -1,76 +1,99 @@
-const Product = require('../models/product');
-const Supplier = require('../models/supplier');
 
-// Get all products
-exports.index = async (req, res) => {
-  try {
-    const products = await Product.find().populate('supplierId');
-    res.render('products/index', { products });
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-};
 
-// Show create form
-exports.new = async (req, res) => {
-  try {
-    const suppliers = await Supplier.find();
-    res.render('products/new', { suppliers });
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-};
 
-// Create product
-exports.create = async (req, res) => {
-  try {
-    const { name, price, quantity, supplierId } = req.body;
-    const product = new Product({ name, price, quantity, supplierId });
-    await product.save();
-    res.redirect('/products');
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-};
+// controllers/productController.js
+const Product = require("../models/product");
+const Supplier = require("../models/supplier");
 
-// Show product
-exports.show = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id).populate('supplierId');
-    res.render('products/show', { product });
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-};
+module.exports = {
+  // Hiển thị tất cả sản phẩm (trang riêng /products)
+  index: async (req, res) => {
+    try {
+      const products = await Product.find().populate("supplierId");
+      const suppliers = await Supplier.find();
 
-// Show edit form
-exports.edit = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    const suppliers = await Supplier.find();
-    res.render('products/edit', { product, suppliers });
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-};
+      res.render("products/index", {
+        products,
+        suppliers,
+        user: req.session.user || null,
+        message: products.length > 0 ? null : "Chưa có sản phẩm nào"
+      });
+    } catch (err) {
+      console.error("Error loading products:", err);
+      res.render("products/index", {
+        products: [],
+        suppliers: [],
+        user: req.session.user || null,
+        message: "Không tải được dữ liệu!"
+      });
+    }
+  },
 
-// Update product
-exports.update = async (req, res) => {
-  try {
-    const { name, price, quantity, supplierId } = req.body;
-    await Product.findByIdAndUpdate(req.params.id, { name, price, quantity, supplierId });
-    res.redirect('/products');
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-};
+  // Form tạo sản phẩm mới
+  new: async (req, res) => {
+    try {
+      const suppliers = await Supplier.find();
+      res.render("products/new", { suppliers, user: req.session.user || null });
+    } catch (err) {
+      console.error(err);
+      res.redirect("/products");
+    }
+  },
 
-// Delete product
-exports.destroy = async (req, res) => {
-  try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.redirect('/products');
-  } catch (error) {
-    res.status(500).send(error.message);
+  // Tạo sản phẩm
+  create: async (req, res) => {
+    try {
+      const product = new Product(req.body);
+      await product.save();
+      res.redirect("/products");
+    } catch (err) {
+      console.error("Error creating product:", err);
+      res.redirect("/products/new");
+    }
+  },
+
+  // Form edit sản phẩm
+  edit: async (req, res) => {
+    try {
+      const product = await Product.findById(req.params.id);
+      const suppliers = await Supplier.find();
+      res.render("products/edit", { product, suppliers, user: req.session.user || null });
+    } catch (err) {
+      console.error("Error loading edit form:", err);
+      res.redirect("/products");
+    }
+  },
+
+  // Cập nhật sản phẩm
+  update: async (req, res) => {
+    try {
+      await Product.findByIdAndUpdate(req.params.id, req.body);
+      res.redirect("/products");
+    } catch (err) {
+      console.error("Error updating product:", err);
+      res.redirect(`/products/${req.params.id}/edit`);
+    }
+  },
+
+  // Xóa sản phẩm
+  destroy: async (req, res) => {
+    try {
+      await Product.findByIdAndDelete(req.params.id);
+      res.redirect("/products");
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      res.redirect("/products");
+    }
+  },
+
+  // Hiển thị chi tiết sản phẩm
+  show: async (req, res) => {
+    try {
+      const product = await Product.findById(req.params.id).populate("supplierId");
+      res.render("products/show", { product, user: req.session.user || null });
+    } catch (err) {
+      console.error("Error showing product:", err);
+      res.redirect("/products");
+    }
   }
 };

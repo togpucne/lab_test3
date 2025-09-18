@@ -27,58 +27,72 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI || "mongodb://127.0.0.1:27017/sessionAuth",
+      mongoUrl:
+        process.env.MONGO_URI || "mongodb://127.0.0.1:27017/sessionAuth",
     }),
     cookie: { maxAge: 1000 * 60 * 60 * 24 }, // 1 ngày
   })
 );
+
+// Global variables for EJS
 app.use((req, res, next) => {
   res.locals.user = req.session ? req.session.user : null;
   res.locals.message = req.session ? req.session.message : null;
 
-  // Nếu có message trong query string
-  if (req.query.message) {
-    res.locals.message = req.query.message;
-  }
+  if (req.query.message) res.locals.message = req.query.message;
+  if (req.session) delete req.session.message;
 
-  if (req.session) {
-    delete req.session.message;
-  }
   next();
 });
 
+// Models
+const Supplier = require("./models/supplier");
+const Product = require("./models/product");
 
 // Routes
 const supplierRoutes = require("./routes/supplierRoute");
 const productRoutes = require("./routes/productRoute");
 const authRoutes = require("./routes/authRoute");
-const Supplier = require("./models/supplier");
-const Product = require("./models/product");  // nếu bạn có model mongoose
-
-
 
 app.use("/auth", authRoutes);
 app.use("/suppliers", supplierRoutes);
 app.use("/products", productRoutes);
 
+// Homepage with search & filter
 app.get("/", async (req, res) => {
   try {
+    const { name, supplierId } = req.query;
     const suppliers = await Supplier.find();
-    const products = await Product.find().populate("supplierId"); // ✅ populate supplier
+
+    let filter = {};
+
+    if (name && name.trim() !== "") {
+      filter.name = new RegExp(name.trim(), "i");
+    }
+
+    if (supplierId && mongoose.Types.ObjectId.isValid(supplierId)) {
+  filter.supplierId = new mongoose.Types.ObjectId(supplierId); // ✅ Dùng `new`
+}
+
+    const products = await Product.find(filter).populate("supplierId");
 
     res.render("index", {
       user: req.session.user || null,
       suppliers,
       products,
-      message: products.length > 0 ? null : "Chưa có sản phẩm nào"
+      name: name || "",
+      supplierId: supplierId || "",
+      message: products.length > 0 ? null : "Không có sản phẩm phù hợp",
     });
   } catch (err) {
     console.error("Error loading homepage:", err.message);
-    res.render("index", { 
-      user: req.session.user || null, 
-      suppliers: [], 
-      products: [],        
-      message: "Không tải được dữ liệu!" 
+    res.render("index", {
+      user: req.session.user || null,
+      suppliers: [],
+      products: [],
+      name: "",
+      supplierId: "",
+      message: "Không tải được dữ liệu!",
     });
   }
 });
@@ -86,4 +100,6 @@ app.get("/", async (req, res) => {
 
 // Server start
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
