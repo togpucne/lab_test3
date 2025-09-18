@@ -1,0 +1,9 @@
+<% layout('layout') -%>
+<h2>Login</h2>
+<% if (typeof error !== 'undefined') { %><p style="color:red"><%= error %></p><% } %>
+<form method="post" action="/auth/login">
+  <label>Username <input name="username"></label><br>
+  <label>Password <input name="password" type="password"></label><br>
+  <button>Login</button>
+</form>
+<p><a href="/auth/forgot">Forgot password?</a></p>
