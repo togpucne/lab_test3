@@ -44,3 +44,6 @@
 </div>
 
 <%- include('../partials/footer') %>
+<% if (message) { %>
+  <script>alert("<%= message %>");</script>
+<% } %>

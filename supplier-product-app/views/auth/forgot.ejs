@@ -1,17 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Forgot Password</title>
-</head>
-<body>
-  <h2>Forgot Password</h2>
-  <% if (typeof info !== 'undefined') { %>
-    <p style="color:green"><%= info %></p>
-  <% } %>
-  <form action="/auth/forgot" method="post">
-    <label>Email:</label>
-    <input type="email" name="email" required><br>
-    <button type="submit">Reset Password</button>
-  </form>
-</body>
-</html>
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5">
+    <div class="card shadow-lg rounded-3">
+      <div class="card-body">
+        <h3 class="card-title text-center mb-4">🔄 Quên mật khẩu</h3>
+
+        <% if (info) { %>
+          <div class="alert alert-success text-center"><%= info %></div>
+        <% } %>
+
+        <form method="POST" action="/auth/forgot">
+          <div class="mb-3">
+            <input type="email" name="email" class="form-control" placeholder="Nhập email" required />
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-warning">Gửi yêu cầu đặt lại</button>
+          </div>
+        </form>
+
+        <div class="mt-3 text-center">
+          <a href="/auth/login">Quay lại đăng nhập</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
