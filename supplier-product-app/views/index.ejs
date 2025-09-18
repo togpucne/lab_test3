@@ -1,49 +1,88 @@
 <%- include('./partials/header') %>
 
-<div class="container mt-4">
+  <div class="container mt-4">
 
-  
-
-  <div class="row">
-    <div class="col-md-12 text-center">
-      <h1>Welcome to Product Supplier Management</h1>
-      <p class="lead">Manage your suppliers and products efficiently</p>
-    </div>
-  </div>
-
-
-
-  <div class="row mt-4">
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">Suppliers</h5>
-          <p class="card-text">Manage supplier information including name, address, and phone.</p>
-          <a href="/suppliers" class="btn btn-primary">View Suppliers</a>
-          <% if (user) { %>
-            <a href="/suppliers/new" class="btn btn-success">Add Supplier</a>
-          <% } %>
-        </div>
+    <!-- Thanh tìm kiếm -->
+    <div class="row mb-3">
+      <div class="col-md-8">
+        <form action="/products/search" method="GET" class="d-flex">
+          <input type="text" name="name" class="form-control me-2" placeholder="Search product by name..." />
+          <button type="submit" class="btn btn-outline-primary">Search</button>
+        </form>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">Products</h5>
-          <p class="card-text">Manage product information including name, price, quantity and supplier.</p>
-          <a href="/products" class="btn btn-primary">View Products</a>
-          <% if (user) { %>
-            <a href="/products/new" class="btn btn-success">Add Product</a>
-          <% } %>
-        </div>
+
+    <!-- Menu chọn sản phẩm theo nhà cung cấp -->
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <form action="/products/by-supplier" method="GET" class="d-flex">
+          <select name="supplierId" class="form-select me-2">
+            <option value="">-- Select supplier --</option>
+            <% suppliers.forEach(supplier=> { %>
+              <option value="<%= supplier.id %>">
+                <%= supplier.name %>
+              </option>
+              <% }) %>
+          </select>
+          <button type="submit" class="btn btn-outline-success">View Products</button>
+        </form>
       </div>
     </div>
+
+    <!-- Tiêu đề -->
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <h1>Welcome to Product Supplier Management</h1>
+        <p class="lead">Manage your suppliers and products efficiently</p>
+      </div>
+    </div>
+
+    <!-- Thẻ quản lý -->
+
+    <div class="container mt-4">
+      <h2>Danh sách sản phẩm</h2>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Tên sản phẩm</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+            <th>Supplier</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (products.length> 0) { %>
+            <% products.forEach(p=> { %>
+              <tr>
+                <td>
+                  <%= p.name %>
+                </td>
+                <td>
+                  <%= p.price %>
+                </td>
+                <td>
+                  <%= p.quantity %>
+                </td>
+                <td><%= p.supplierId ? p.supplierId.name : "N/A" %></td>
+
+              </tr>
+              <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4" class="text-center">Không có sản phẩm nào</td>
+                  </tr>
+                  <% } %>
+        </tbody>
+
+      </table>
+
+    </div>
+
+
   </div>
 
-</div>
+  <%- include('./partials/footer') %>
 
-<%- include('./partials/footer') %>
-<% if (message && message.length > 0) { %>
-  <script>alert("<%= message %>");</script>
-<% } %>
-
+    <% if (message && message.length> 0) { %>
+      <script>alert("<%= message %>");</script>
+      <% } %>

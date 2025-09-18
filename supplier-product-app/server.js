@@ -52,15 +52,37 @@ app.use((req, res, next) => {
 const supplierRoutes = require("./routes/supplierRoute");
 const productRoutes = require("./routes/productRoute");
 const authRoutes = require("./routes/authRoute");
+const Supplier = require("./models/supplier");
+const Product = require("./models/product");  // nếu bạn có model mongoose
+
+
 
 app.use("/auth", authRoutes);
 app.use("/suppliers", supplierRoutes);
 app.use("/products", productRoutes);
 
-// Home page
-app.get("/", (req, res) => {
-  res.render("index", { user: req.session.user, message: null });
+app.get("/", async (req, res) => {
+  try {
+    const suppliers = await Supplier.find();
+    const products = await Product.find().populate("supplierId"); // ✅ populate supplier
+
+    res.render("index", {
+      user: req.session.user || null,
+      suppliers,
+      products,
+      message: products.length > 0 ? null : "Chưa có sản phẩm nào"
+    });
+  } catch (err) {
+    console.error("Error loading homepage:", err.message);
+    res.render("index", { 
+      user: req.session.user || null, 
+      suppliers: [], 
+      products: [],        
+      message: "Không tải được dữ liệu!" 
+    });
+  }
 });
+
 
 // Server start
 const PORT = process.env.PORT || 3000;
