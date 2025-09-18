@@ -1,0 +1,46 @@
+<!-- views/suppliers/show.ejs -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết Nhà cung cấp</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <%- include('../partials/header') %>
+
+  <main class="container">
+    <h1>Thông tin Nhà cung cấp</h1>
+
+    <% if (message && message.length > 0) { %>
+      <div class="alert alert-info">
+        <%= message %>
+      </div>
+    <% } %>
+
+    <% if (supplier) { %>
+      <ul class="detail-list">
+        <li><strong>Tên:</strong> <%= supplier.name %></li>
+        <li><strong>Email:</strong> <%= supplier.email %></li>
+        <li><strong>Địa chỉ:</strong> <%= supplier.address %></li>
+        <li><strong>Số điện thoại:</strong> <%= supplier.phone || "Chưa có" %></li>
+      </ul>
+
+      <div class="actions">
+        <a href="/suppliers/<%= supplier._id %>/edit" class="btn btn-primary">✏ Sửa</a>
+        <form action="/suppliers/<%= supplier._id %>?_method=DELETE" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-danger">🗑 Xóa</button>
+        </form>
+      </div>
+    <% } else { %>
+      <p>❌ Không tìm thấy nhà cung cấp</p>
+    <% } %>
+
+    <a href="/suppliers" class="btn btn-secondary">⬅ Quay lại danh sách</a>
+  </main>
+
+  <!-- Footer -->
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <% if (message && message.length > 0) { %>
+    <script>
+      alert("<%= message[0] %>");
+    </script>
+  <% } %>
+
+  <div class="card mb-4 shadow-sm">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <% if (product.image) { %>
+          <img src="<%= product.image %>" class="img-fluid rounded-start" alt="<%= product.name %>">
+        <% } else { %>
+          <img src="/images/no-image.png" class="img-fluid rounded-start" alt="No image">
+        <% } %>
+      </div>
+
+      <div class="col-md-8">
+        <div class="card-body">
+          <h2 class="card-title mb-1"><%= product.name %></h2>
+          <p class="text-muted small mb-2">ID: <%= product._id %></p>
+
+          <h4 class="text-primary">
+            Giá: <%= product.price ? product.price.toLocaleString('vi-VN') + ' ₫' : '—' %>
+          </h4>
+
+          <p><strong>Số lượng:</strong> <%= product.quantity ?? 0 %></p>
+
+          <p>
+            <strong>Nhà cung cấp:</strong>
+            <% if (product.supplier) { %>
+              <a href="/suppliers/<%= product.supplier._id %>"><%= product.supplier.supplierId %></a>
+            <% } else { %>
+              — Chưa có nhà cung cấp
+            <% } %>
+          </p>
+
+          <hr>
+
+          <p><strong>Mô tả:</strong></p>
+          <p><%= product.description ? product.description : 'Không có mô tả.' %></p>
+
+          <p class="text-muted small mt-3">Tạo: <%= product.createdAt ? new Date(product.createdAt).toLocaleString('vi-VN') : '—' %></p>
+
+          <div class="mt-4">
+            <% if (user) { %>
+              <a href="/products/<%= product._id %>/edit" class="btn btn-outline-primary me-2">Chỉnh sửa</a>
+
+              <form action="/products/<%= product._id %>?_method=DELETE" method="POST" class="d-inline"
+                    onsubmit="return confirm('Bạn chắc chắn muốn xóa sản phẩm này?');">
+                <button class="btn btn-danger">Xóa</button>
+              </form>
+            <% } else { %>
+              <a href="/auth/login" class="btn btn-primary">Đăng nhập để chỉnh sửa / xóa</a>
+            <% } %>
+
+            <a href="/products" class="btn btn-secondary ms-2">Quay lại danh sách</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
